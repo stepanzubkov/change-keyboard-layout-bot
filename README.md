@@ -27,6 +27,8 @@ Examples:
 
 This bot is made with vkbottle framework.
 
+WARNING: If you want to use this bot in your own bot, you should release your bot with a GNU GPL v3-or-later license (for details, read license conditions in `COPYING` file)
+
 1. Clone this repo:
 `git clone https://github.com/stepanzubkov/change-keyboard-layout-bot.git`
 
