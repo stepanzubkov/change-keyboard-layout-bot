@@ -16,8 +16,14 @@ from vkbottle.dispatch.rules.base import ReplyMessageRule, CommandRule
 bl = BotLabeler()
 
 
+@bl.message(ReplyMessageRule(), CommandRule("раскладка", ["!", "/"], 0) | CommandRule("layout", ["!", "/"], 0))
+async def handler_guess_and_change_keyboard_layout(message: Message):
+    layout = guess_keyboard_layout_name(message.reply_message.text)
+    await message.reply(change_keyboard_layout(message.reply_message.text, layout))
+
+
 @bl.message(ReplyMessageRule(), CommandRule("раскладка", ["!", "/"], 1) | CommandRule("layout", ["!", "/"], 1))
-async def handler_change_heyboard_layout(message: Message, args: Tuple[str]):
+async def handler_change_keyboard_layout(message: Message, args: Tuple[str]):
     layout = args[0]
     if layout in ["ru", "ру"]:
         await message.reply(change_keyboard_layout(message.reply_message.text, "ru"))
@@ -27,7 +33,6 @@ async def handler_change_heyboard_layout(message: Message, args: Tuple[str]):
         await message.reply(f"\u2757 Раскладка '{layout}' не поддерживается! Доступные раскладки:\n"
                       f"- en (ен)\n"
                       f"- ru (ру)")
-
 
 
 def change_keyboard_layout(text: str, lang: str) -> str:
@@ -42,3 +47,24 @@ def change_keyboard_layout(text: str, lang: str) -> str:
         raise ValueError("lang must be one of 'ru', 'en'")
     layout = dict(zip(map(ord, from_), to))
     return text.translate(layout)
+
+
+def guess_keyboard_layout_name(text: str) -> str:
+    """
+    Guesses keyboard layout name, using ord() on every char.
+    :param str text: text
+    :rtype: str
+    :return: Keyboard layout name (en, ru)
+    """
+    en_chars_count = 0
+    ru_chars_count = 0
+    for char in text:
+        if ord(char) >= 65 and ord(char) <= 122:
+            en_chars_count += 1
+        elif ord(char) >= 1040 and ord(char) <= 1103:
+            ru_chars_count += 1
+
+    if ru_chars_count > en_chars_count:
+        return "en"
+    return "ru"
+
